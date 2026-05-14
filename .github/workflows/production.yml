@@ -52,8 +52,8 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:${{ steps.tag.outputs.sha_tag }}
             ${{ env.IMAGE }}:latest
-          cache-from: type=registry,ref=${{ env.IMAGE }}:latest
-          cache-to:   type=inline
+          cache-from: type=gha
+          cache-to:   type=gha,mode=max
 
   # ── 2. Deploy to droplet ────────────────────────────────────────────────────
   deploy:
