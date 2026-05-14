@@ -120,11 +120,27 @@ let pipes: Pipe[] = []
 let lastPipeAt = 0
 
 let score = 0
-let highScore = Number(localStorage.getItem(HIGH_KEY) ?? 0) || 0
+let highScore = readHighScore()
 
 let state: State = 'start'
 let lastFrame = 0
 let updateAccumulator = 0
+
+function readHighScore() {
+  try {
+    return Number(localStorage.getItem(HIGH_KEY) ?? 0) || 0
+  } catch {
+    return 0
+  }
+}
+
+function writeHighScore(value: number) {
+  try {
+    localStorage.setItem(HIGH_KEY, String(value))
+  } catch {
+    // High score persistence is optional; gameplay should continue if storage is blocked.
+  }
+}
 
 function reset() {
   birdY = H / 2
@@ -164,10 +180,15 @@ window.addEventListener('keydown', (e) => {
 canvas.addEventListener('pointerdown', (e) => {
   e.preventDefault()
   action()
-})
+}, { passive: false })
 
 window.addEventListener('resize', resize)
-window.addEventListener('orientationchange', resize)
+const screenOrientation = window.screen.orientation as ScreenOrientation | undefined
+if (screenOrientation) {
+  screenOrientation.addEventListener('change', resize)
+} else {
+  window.addEventListener('orientationchange', resize)
+}
 resize()
 birdY = H / 2 // initialize after first resize so we know H
 
@@ -211,7 +232,7 @@ function tick(dt: number) {
       score++
       if (score > highScore) {
         highScore = score
-        localStorage.setItem(HIGH_KEY, String(highScore))
+        writeHighScore(highScore)
       }
     }
   }

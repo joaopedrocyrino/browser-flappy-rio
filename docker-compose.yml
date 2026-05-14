@@ -1,0 +1,23 @@
+name: flappy
+
+services:
+  flappy:
+    image: ${FLAPPY_IMAGE:-ghcr.io/joaopedrocyrino/browser-flappy-rio:latest}
+    restart: unless-stopped
+    networks: [proxy]
+    labels:
+      caddy: flappy.cyrino.dev
+      caddy.reverse_proxy: "{{upstreams 80}}"
+      # Caddy security headers — applied at the proxy, not in nginx.
+      caddy.header.Strict-Transport-Security: "max-age=31536000; includeSubDomains"
+      caddy.header.X-Content-Type-Options: nosniff
+      caddy.header.Referrer-Policy: strict-origin-when-cross-origin
+    deploy:
+      resources:
+        limits:
+          memory: 32M
+
+networks:
+  proxy:
+    external: true
+    name: proxy
