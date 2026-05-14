@@ -66,10 +66,18 @@ jobs:
       - name: Checkout (for compose file)
         uses: actions/checkout@v4
 
+      - name: Ensure app directory exists
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host:     ${{ secrets.PRODUCTION_DROPLET_HOST }}
+          username: ${{ secrets.PRODUCTION_DROPLET_SSH_USER }}
+          key:      ${{ secrets.PRODUCTION_DROPLET_SSH_KEY }}
+          script: mkdir -p /opt/flappy
+
       - name: Copy compose file to droplet
         uses: appleboy/scp-action@v0.1.7
         with:
-          host:     ${{ f.PRODUCTION_DROPLET_HOST }}
+          host:     ${{ secrets.PRODUCTION_DROPLET_HOST }}
           username: ${{ secrets.PRODUCTION_DROPLET_SSH_USER }}
           key:      ${{ secrets.PRODUCTION_DROPLET_SSH_KEY }}
           source:   "docker-compose.yml"
